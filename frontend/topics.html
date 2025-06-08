@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Topics - Knowledge Base</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .topics-list {
+      list-style: none;
+      padding: 0;
+      max-width: 1200px;
+      margin: 1rem auto;
+    }
+    .topic-item {
+      border: 1px solid #ccc;
+      margin-bottom: 0.5rem;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+    .topic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .topic-name {
+      font-weight: bold;
+    }
+    .add-url-btn {
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #007acc;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+      border: none;
+      color: white;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-left: 10px;
+      transition: background-color 0.3s ease;
+    }
+    .delete-btn:hover {
+      background-color: #c82333;
+    }
+    .links-list {
+      list-style: none;
+      padding-left: 1rem;
+      margin-top: 0.5rem;
+    }
+    .links-list li {
+      padding: 0.3rem 0;
+    }
+    .links-list li a {
+      text-decoration: none;
+      color: #007acc;
+    }
+    .add-url-form {
+      margin-top: 0.5rem;
+      display: none;
+    }
+    .add-url-form input[type="text"],
+    .add-url-form input[type="url"] {
+      padding: 0.3rem;
+      margin-right: 0.5rem;
+      width: 40%;
+      box-sizing: border-box;
+    }
+    .add-url-form button {
+      padding: 0.3rem 0.6rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">KnowledgeBase</div>
+    <nav class="nav-links">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="topics.html">Topics</a></li>
+        <li><a href="#">Recent</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="main-content">
+    <ul class="topics-list topics-grid" id="topics-list"></ul>
+  </main>
+
+  <script>
+    const apiBaseUrl = 'http://localhost:3000/api';
+
+    async function fetchTopics() {
+      const response = await fetch(apiBaseUrl + '/topics');
+      if (!response.ok) {
+        alert('Failed to fetch topics');
+        return [];
+      }
+      return await response.json();
+    }
+
+    async function fetchLinks(topicId) {
+      const response = await fetch(apiBaseUrl + '/links?topic_id=' + encodeURIComponent(topicId));
+      if (!response.ok) {
+        alert('Failed to fetch links');
+        return [];
+      }
+      return await response.json();
+    }
+
+    async function addLink(topicId, name, url) {
+      const response = await fetch(apiBaseUrl + '/links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic_id: topicId, name, url }),
+      });
+      if (!response.ok) {
+        alert('Failed to add link');
+        return false;
+      }
+      return true;
+    }
+
+    function createLinkElement(link) {
+      const li = document.createElement('li');
+<<<<<<< HEAD
+      li.className = 'link-item';
+
+=======
+>>>>>>> b6bc630c298ccf1fd745806445a6523a1cf79d31
+      const a = document.createElement('a');
+      a.href = link.url;
+      a.target = '_blank';
+      a.textContent = link.name;
+
+<<<<<<< HEAD
+      const img = document.createElement('img');
+      img.className = 'link-image';
+      img.alt = link.name + ' preview';
+      img.style.width = '150px';
+      img.style.height = '150px';
+      img.style.objectFit = 'cover';
+      img.style.marginRight = '10px';
+      img.style.verticalAlign = 'middle';
+      img.style.borderRadius = '4px';
+      img.src = ''; // placeholder
+
+      // Fetch metadata image from backend
+      fetch(`/api/url-metadata?url=${encodeURIComponent(link.url)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.image) {
+            img.src = data.image;
+          } else {
+            img.style.display = 'none';
+          }
+        })
+        .catch(() => {
+          img.style.display = 'none';
+        });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.className = 'delete-btn';
+=======
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.style.marginLeft = '10px';
+>>>>>>> b6bc630c298ccf1fd745806445a6523a1cf79d31
+      deleteBtn.onclick = async (e) => {
+        e.stopPropagation();
+        const success = await deleteLink(link.id);
+        if (success) {
+          li.remove();
+        }
+      };
+
+<<<<<<< HEAD
+      li.appendChild(img);
+=======
+>>>>>>> b6bc630c298ccf1fd745806445a6523a1cf79d31
+      li.appendChild(a);
+      li.appendChild(deleteBtn);
+      return li;
+    }
+
+    function createTopicElement(topic) {
+      const li = document.createElement('li');
+      li.className = 'topic-item';
+
+      const header = document.createElement('div');
+      header.className = 'topic-header';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'topic-name';
+      nameSpan.textContent = topic.name;
+
+      const addBtn = document.createElement('button');
+      addBtn.className = 'add-url-btn';
+      addBtn.textContent = '+';
+      addBtn.title = 'Add URL';
+      addBtn.onclick = (e) => {
+        e.stopPropagation();
+        toggleAddUrlForm(li);
+      };
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.style.marginLeft = '10px';
+      deleteBtn.onclick = async (e) => {
+        e.stopPropagation();
+        const success = await deleteTopic(topic.id);
+        if (success) {
+          li.remove();
+        }
+      };
+
+      header.appendChild(nameSpan);
+      header.appendChild(addBtn);
+      header.appendChild(deleteBtn);
+      li.appendChild(header);
+
+      const linksList = document.createElement('ul');
+      linksList.className = 'links-list';
+      li.appendChild(linksList);
+
+      const addUrlForm = document.createElement('form');
+      addUrlForm.className = 'add-url-form';
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.placeholder = 'Link Name';
+      nameInput.required = true;
+
+      const urlInput = document.createElement('input');
+      urlInput.type = 'url';
+      urlInput.placeholder = 'URL';
+      urlInput.required = true;
+
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'submit';
+      submitBtn.textContent = 'Add';
+
+      addUrlForm.appendChild(nameInput);
+      addUrlForm.appendChild(urlInput);
+      addUrlForm.appendChild(submitBtn);
+
+      addUrlForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const name = nameInput.value.trim();
+        const url = urlInput.value.trim();
+        if (!name || !url) {
+          alert('Name and URL are required');
+          return;
+        }
+        const success = await addLink(topic.id, name, url);
+        if (success) {
+          nameInput.value = '';
+          urlInput.value = '';
+          await loadLinks(topic.id, linksList);
+        }
+      };
+
+      li.appendChild(addUrlForm);
+
+      li.onclick = async () => {
+        if (linksList.style.display === 'block') {
+          linksList.style.display = 'none';
+          addUrlForm.style.display = 'none';
+        } else {
+          await loadLinks(topic.id, linksList);
+          linksList.style.display = 'block';
+        }
+      };
+
+      return li;
+    }
+
+    async function loadLinks(topicId, container) {
+      const links = await fetchLinks(topicId);
+      container.innerHTML = '';
+      links.forEach(link => {
+        const li = createLinkElement(link);
+        container.appendChild(li);
+      });
+    }
+
+    async function deleteTopic(topicId) {
+      const response = await fetch(apiBaseUrl + '/topics/' + encodeURIComponent(topicId), {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        alert('Failed to delete topic');
+        return false;
+      }
+      return true;
+    }
+
+    async function deleteLink(linkId) {
+      const response = await fetch(apiBaseUrl + '/links/' + encodeURIComponent(linkId), {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        alert('Failed to delete link');
+        return false;
+      }
+      return true;
+    }
+
+    async function loadTopics() {
+      const topics = await fetchTopics();
+      const topicsList = document.getElementById('topics-list');
+      topicsList.innerHTML = '';
+      topics.forEach(topic => {
+        const li = createTopicElement(topic);
+        topicsList.appendChild(li);
+      });
+    }
+
+    function toggleAddUrlForm(topicElement) {
+      const form = topicElement.querySelector('.add-url-form');
+      if (form.style.display === 'block') {
+        form.style.display = 'none';
+      } else {
+        form.style.display = 'block';
+      }
+    }
+
+    // Initial load
+    loadTopics();
+  </script>
+</body>
+</html>

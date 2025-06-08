@@ -1,0 +1,214 @@
+const express = require('express');
+const router = express.Router();
+const db = require('./db');
+<<<<<<< HEAD
+const fetch = require('node-fetch');
+const metascraper = require('metascraper')([
+  require('metascraper-image')(),
+  require('metascraper-title')(),
+  require('metascraper-description')()
+]);
+=======
+>>>>>>> b6bc630c298ccf1fd745806445a6523a1cf79d31
+
+// Topics routes
+
+// Add a new topic
+router.post('/topics', (req, res) => {
+  const { name, parent_id } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: 'Topic name is required' });
+  }
+  const sql = 'INSERT INTO topics (name, parent_id) VALUES (?, ?)';
+  db.run(sql, [name, parent_id || null], function(err) {
+    if (err) {
+      if (err.message.includes('UNIQUE constraint failed')) {
+        return res.status(409).json({ error: 'Topic already exists' });
+      }
+      return res.status(500).json({ error: err.message });
+    }
+    res.status(201).json({ id: this.lastID });
+  });
+});
+
+<<<<<<< HEAD
+// Get all topics ordered by creation date desc
+=======
+ // Get all topics ordered by creation date desc
+>>>>>>> b6bc630c298ccf1fd745806445a6523a1cf79d31
+router.get('/topics', (req, res) => {
+  const sql = 'SELECT * FROM topics ORDER BY created_at DESC';
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching topics:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+});
+
+// Get recent topics (limit 5)
+router.get('/topics/recent', (req, res) => {
+  const sql = 'SELECT * FROM topics ORDER BY created_at DESC LIMIT 5';
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+});
+
+// Update a topic by id
+router.put('/topics/:id', (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: 'Topic name is required' });
+  }
+  const sql = 'UPDATE topics SET name = ? WHERE id = ?';
+  db.run(sql, [name, id], function(err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Topic not found' });
+    }
+    res.json({ updated: true });
+  });
+});
+
+// Delete a topic by id
+router.delete('/topics/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = 'DELETE FROM topics WHERE id = ?';
+  db.run(sql, [id], function(err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Topic not found' });
+    }
+    res.json({ deleted: true });
+  });
+});
+
+// Links routes
+
+// Add a new link
+router.post('/links', (req, res) => {
+  const { topic_id, name, url } = req.body;
+  if (!name || !url) {
+    return res.status(400).json({ error: 'Name and URL are required' });
+  }
+  const sql = 'INSERT INTO links (topic_id, name, url) VALUES (?, ?, ?)';
+  db.run(sql, [topic_id || null, name, url], function(err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.status(201).json({ id: this.lastID });
+  });
+});
+
+// Get all links or links by topic_id
+router.get('/links', (req, res) => {
+  const { topic_id } = req.query;
+  let sql = 'SELECT * FROM links';
+  const params = [];
+  if (topic_id) {
+    sql += ' WHERE topic_id = ?';
+    params.push(topic_id);
+  }
+  sql += ' ORDER BY created_at DESC';
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+});
+
+// Search links by name
+router.get('/links/search', (req, res) => {
+  const { q, topic_id } = req.query;
+  if (!q) {
+    return res.status(400).json({ error: 'Query parameter q is required' });
+  }
+  let sql = `
+    SELECT * FROM links
+    WHERE name LIKE ?
+  `;
+  const params = ['%' + q + '%'];
+  if (topic_id) {
+    sql += ' AND topic_id = ?';
+    params.push(topic_id);
+  }
+  sql += ' ORDER BY created_at DESC';
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+});
+
+// Update a link by id
+router.put('/links/:id', (req, res) => {
+  const { id } = req.params;
+  const { topic_id, name, url } = req.body;
+  if (!name || !url) {
+    return res.status(400).json({ error: 'Name and URL are required' });
+  }
+  const sql = `
+    UPDATE links
+    SET topic_id = ?, name = ?, url = ?
+    WHERE id = ?
+  `;
+  db.run(sql, [topic_id || null, name, url, id], function(err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Link not found' });
+    }
+    res.json({ updated: true });
+  });
+});
+
+// Delete a link by id
+router.delete('/links/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = 'DELETE FROM links WHERE id = ?';
+  db.run(sql, [id], function(err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Link not found' });
+    }
+    res.json({ deleted: true });
+  });
+});
+
+<<<<<<< HEAD
+// New route to fetch URL metadata
+router.get('/url-metadata', async (req, res) => {
+  const { url } = req.query;
+  if (!url) {
+    return res.status(400).json({ error: 'URL parameter is required' });
+  }
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      return res.status(500).json({ error: 'Failed to fetch URL' });
+    }
+    const html = await response.text();
+    const metadata = await metascraper({ html, url });
+    res.json(metadata);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+=======
+>>>>>>> b6bc630c298ccf1fd745806445a6523a1cf79d31
+module.exports = router;

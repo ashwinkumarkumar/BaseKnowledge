@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Corporate Knowledge Base</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    #add-url-message {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header class="navbar">
+    <div class="logo">KnowledgeBase</div>
+    <nav class="nav-links">
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li class="dropdown">
+          <a href="topics.html">Topics</a>
+          <ul class="dropdown-menu" id="topics-dropdown"></ul>
+        </li>
+<<<<<<< HEAD
+        
+=======
+        <li><a href="#" id="search-tab-link">Search</a></li>
+>>>>>>> b6bc630c298ccf1fd745806445a6523a1cf79d31
+        <li><a href="#">Recent</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="nav-icons">
+      <button class="search-btn" aria-label="Search">&#128269;</button>
+      <select aria-label="Language selector" class="language-select">
+        <option value="en">EN</option>
+        <option value="sv">SV</option>
+      </select>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Welcome to Your Knowledge Base</h1>
+      <p>Organize and access your learning resources efficiently.</p>
+      <button class="cta-btn" id="add-topic-btn">Add New Topic</button>
+    </div>
+  </section>
+
+  <main class="main-content">
+    <section class="topics-section">
+      <h2>Topics</h2>
+      <!-- Removed the topics list above add topic form as per user request -->
+      <form id="add-topic-form" class="hidden">
+        <input type="text" id="topic-name" placeholder="Add new topic" required />
+        <button type="submit">Add Topic</button>
+      </form>
+      <h3>Recent Topics</h3>
+      <ul id="recent-topics"></ul>
+    </section>
+
+    <section class="links-section">
+      <h2 id="current-topic-title">Select a topic</h2>
+      <div id="add-url-message" class="hidden"></div>
+      <form id="add-link-form" class="hidden">
+        <input type="text" id="title" placeholder="Name" required />
+        <input type="url" id="url" placeholder="URL" required />
+        <button type="submit">Add Link</button>
+      </form>
+      
+    </section>
+    
+  </main>
+
+  <footer class="footer">
+    <div class="footer-columns">
+            <p>&copy; 2024 KnowledgeBase. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
