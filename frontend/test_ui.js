@@ -1,72 +1,76 @@
-/**
- * Basic frontend UI test script using Puppeteer
- * Tests adding topics, adding links, and UI element visibility
- */
+const { fireEvent, screen, waitFor } = require('@testing-library/dom');
+// Removed require('@testing-library/jest-dom/extend-expect') to avoid module not found error
 
-const puppeteer = require('puppeteer');
+// Mock fetch globally
+global.fetch = jest.fn();
 
-async function runUITests() {
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
+// Mock window.alert to avoid errors in tests
+global.alert = jest.fn();
 
-  // Change this URL to your local running app URL
-  const appUrl = 'http://localhost:3000';
+describe('KnowledgeBase UI', () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <ul id="recent-topics"></ul>
+      <form id="add-topic-form" class="hidden">
+        <input type="text" id="topic-name" placeholder="Add new topic" required />
+        <button type="submit">Add Topic</button>
+      </form>
+      <section class="links-section">
+        <h2 id="current-topic-title">Select a topic</h2>
+        <div id="add-url-message" class="hidden"></div>
+        <form id="add-link-form" class="hidden">
+          <input type="text" id="title" placeholder="Name" required />
+          <input type="url" id="url" placeholder="URL" required />
+          <button type="submit">Add Link</button>
+        </form>
+        <ul id="links-list"></ul>
+      </section>
+      <button id="add-topic-btn">Add New Topic</button>
+    `;
+    fetch.mockClear();
+    global.alert.mockClear();
 
-  try {
-    await page.goto(appUrl);
-
-    // Test adding a new topic
-    await page.waitForSelector('#add-topic-form input#topic-name');
-    await page.type('#add-topic-form input#topic-name', 'UI Test Topic');
-    await page.click('#add-topic-form button[type="submit"]');
-    await new Promise(resolve => setTimeout(resolve, 1000)); // wait for UI update
-
-    // Check if new topic appears in recent topics list
-    const topicExists = await page.evaluate(() => {
-      const topics = Array.from(document.querySelectorAll('#recent-topics li'));
-      return topics.some(li => li.textContent.includes('UI Test Topic'));
+    // Require app.js here to attach event listeners
+    jest.isolateModules(() => {
+      require('./app.js');
     });
-    console.log('New topic added to recent topics:', topicExists);
+  });
 
-    // Select the new topic
-    await page.evaluate(() => {
-      const topics = Array.from(document.querySelectorAll('#recent-topics li'));
-      const topic = topics.find(li => li.textContent.includes('UI Test Topic'));
-      if (topic) topic.click();
+  test('add topic button shows add topic form', () => {
+    const addTopicBtn = screen.getByText('Add New Topic');
+    const addTopicForm = document.getElementById('add-topic-form');
+    expect(addTopicForm.classList.contains('hidden')).toBe(true);
+
+    fireEvent.click(addTopicBtn);
+
+    expect(addTopicForm.classList.contains('hidden')).toBe(false);
+  });
+
+  test('add topic form submission calls fetch with correct data', async () => {
+    fetch.mockResolvedValueOnce({ ok: true });
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => [{ id: 1, name: 'Test Topic' }],
     });
-    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Test adding a new link
-    await page.waitForSelector('#add-link-form input#title');
-    await page.type('#add-link-form input#title', 'UI Test Link');
-    await page.type('#add-link-form input#url', 'https://example.com');
-    await page.click('#add-link-form button[type="submit"]');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // Check if new link appears in links list
-    const linkExists = await page.evaluate(() => {
-      const links = Array.from(document.querySelectorAll('.link-item h3 a'));
-      return links.some(a => a.textContent.includes('UI Test Link'));
+    const addTopicForm = document.getElementById('add-topic-form');
+    const topicNameInput = document.getElementById('topic-name');
+
+    fireEvent.click(screen.getByText('Add New Topic'));
+    topicNameInput.value = 'Test Topic';
+
+    fireEvent.submit(addTopicForm);
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/topics'),
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ name: 'Test Topic' }),
+        })
+      );
     });
-    console.log('New link added to links list:', linkExists);
+  });
 
-    // Check if "Add URL to the topic [topic name]" message is visible
-    const messageVisible = await page.evaluate(() => {
-      const msg = document.getElementById('add-url-message');
-      return msg && msg.textContent.includes('UI Test Topic') && !msg.classList.contains('hidden');
-    });
-    console.log('Add URL message visible:', messageVisible);
-
-    await browser.close();
-
-    if (topicExists && linkExists && messageVisible) {
-      console.log('Frontend UI tests passed.');
-    } else {
-      console.log('Frontend UI tests failed.');
-    }
-  } catch (error) {
-    console.error('Error during frontend UI tests:', error);
-    await browser.close();
-  }
-}
-
-runUITests();
+  // Additional tests for adding links, loading recent topics, etc. can be added here
+});

@@ -1,41 +1,29 @@
+
 const express = require('express');
 const router = express.Router();
 const db = require('./db');
-<<<<<<< HEAD
 const fetch = require('node-fetch');
 const metascraper = require('metascraper')([
   require('metascraper-image')(),
   require('metascraper-title')(),
   require('metascraper-description')()
 ]);
-=======
->>>>>>> b6bc630c298ccf1fd745806445a6523a1cf79d31
-
-// Topics routes
 
 // Add a new topic
 router.post('/topics', (req, res) => {
-  const { name, parent_id } = req.body;
+  const { name } = req.body;
   if (!name) {
     return res.status(400).json({ error: 'Topic name is required' });
   }
-  const sql = 'INSERT INTO topics (name, parent_id) VALUES (?, ?)';
-  db.run(sql, [name, parent_id || null], function(err) {
+  const sql = 'INSERT INTO topics (name) VALUES (?)';
+  db.run(sql, [name], function(err) {
     if (err) {
-      if (err.message.includes('UNIQUE constraint failed')) {
-        return res.status(409).json({ error: 'Topic already exists' });
-      }
       return res.status(500).json({ error: err.message });
     }
     res.status(201).json({ id: this.lastID });
   });
 });
 
-<<<<<<< HEAD
-// Get all topics ordered by creation date desc
-=======
- // Get all topics ordered by creation date desc
->>>>>>> b6bc630c298ccf1fd745806445a6523a1cf79d31
 router.get('/topics', (req, res) => {
   const sql = 'SELECT * FROM topics ORDER BY created_at DESC';
   db.all(sql, [], (err, rows) => {
@@ -189,7 +177,8 @@ router.delete('/links/:id', (req, res) => {
   });
 });
 
-<<<<<<< HEAD
+const { URL } = require('url');
+
 // New route to fetch URL metadata
 router.get('/url-metadata', async (req, res) => {
   const { url } = req.query;
@@ -197,7 +186,13 @@ router.get('/url-metadata', async (req, res) => {
     return res.status(400).json({ error: 'URL parameter is required' });
   }
   try {
-    const response = await fetch(url);
+    // Validate URL
+    new URL(url);
+  } catch (err) {
+    return res.status(400).json({ error: 'Invalid URL' });
+  }
+  try {
+    const response = await fetch(url, { timeout: 5000 });
     if (!response.ok) {
       return res.status(500).json({ error: 'Failed to fetch URL' });
     }
@@ -205,10 +200,9 @@ router.get('/url-metadata', async (req, res) => {
     const metadata = await metascraper({ html, url });
     res.json(metadata);
   } catch (error) {
+    console.error('Error in /url-metadata:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-=======
->>>>>>> b6bc630c298ccf1fd745806445a6523a1cf79d31
 module.exports = router;

@@ -16,21 +16,31 @@ const searchResultsList = document.getElementById('search-results');
 // Removed search input event listener to disable search action
 
 async function fetchTopics() {
-  const response = await fetch(apiBaseUrl + '/topics');
-  if (!response.ok) {
+  try {
+    const response = await fetch(apiBaseUrl + '/topics');
+    if (!response.ok) {
+      alert('Failed to fetch topics');
+      return [];
+    }
+    return await response.json();
+  } catch (error) {
     alert('Failed to fetch topics');
     return [];
   }
-  return await response.json();
 }
 
 async function fetchRecentTopics() {
-  const response = await fetch(apiBaseUrl + '/topics/recent');
-  if (!response.ok) {
+  try {
+    const response = await fetch(apiBaseUrl + '/topics/recent');
+    if (!response.ok) {
+      alert('Failed to fetch recent topics');
+      return [];
+    }
+    return await response.json();
+  } catch (error) {
     alert('Failed to fetch recent topics');
     return [];
   }
-  return await response.json();
 }
 
 async function fetchLinks(topicId = null, query = '') {
