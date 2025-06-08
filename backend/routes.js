@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./db');
-const fetch = require('node-fetch');
+const axios = require('axios');
 const metascraper = require('metascraper')([
   require('metascraper-image')(),
   require('metascraper-title')(),
@@ -192,11 +192,18 @@ router.get('/url-metadata', async (req, res) => {
     return res.status(400).json({ error: 'Invalid URL' });
   }
   try {
-    const response = await fetch(url, { timeout: 5000 });
-    if (!response.ok) {
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+      },
+      timeout: 10000,
+      responseType: 'text'
+    });
+
+    if (response.status !== 200) {
       return res.status(500).json({ error: 'Failed to fetch URL' });
     }
-    const html = await response.text();
+    const html = response.data;
     const metadata = await metascraper({ html, url });
     res.json(metadata);
   } catch (error) {

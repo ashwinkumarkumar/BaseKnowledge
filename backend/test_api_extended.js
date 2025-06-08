@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+const axios = require('axios');
 
 const apiBaseUrl = 'http://localhost:3000/api';
 
