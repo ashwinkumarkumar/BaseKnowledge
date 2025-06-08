@@ -6,8 +6,8 @@
     "metascraper-image": "^5.47.1",
     "metascraper-title": "^5.47.1",
     "node-fetch": "^2.7.0",
-    "puppeteer": "^24.10.0",
-    "nodefetch": "^3.2.0"
+    "puppeteer": "^24.10.0"
+    
   },
   "scripts": {
     "start": "node backend/server.js"
