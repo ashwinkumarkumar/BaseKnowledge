@@ -6,6 +6,10 @@ RUN apt-get update && apt-get install -y python3 make g++ && ln -sf python3 /usr
 WORKDIR /app
 COPY . .
 
-RUN npm ci
+# Install backend dependencies
+WORKDIR /app/backend
+RUN if [ -f package.json ]; then npm ci; fi
+
+WORKDIR /app
 
 CMD ["npm", "start"]
