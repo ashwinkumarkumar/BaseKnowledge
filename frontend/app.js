@@ -143,64 +143,71 @@ function selectTopic(id, name) {
   loadLinks();
 }
 
-addTopicForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = document.getElementById('topic-name').value.trim();
-  if (!name) return;
-  const response = await fetch(apiBaseUrl + '/topics', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name }),
-  });
-  if (response.ok) {
-    addTopicForm.reset();
-    await loadRecentTopics();
-    allTopics = await fetchTopics();  // Update allTopics after loading recent topics
-    const newTopic = allTopics.find(t => t.name === name);
-    if (newTopic) {
-      selectTopic(newTopic.id, newTopic.name);
-      if (addUrlMessage) {
-        addUrlMessage.textContent = `Add URL to the topic [${newTopic.name}]`;
-        addUrlMessage.classList.remove('hidden');
+if (addTopicForm) {
+  addTopicForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('topic-name').value.trim();
+    if (!name) return;
+    const response = await fetch(apiBaseUrl + '/topics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    if (response.ok) {
+      addTopicForm.reset();
+      await loadRecentTopics();
+      allTopics = await fetchTopics();  // Update allTopics after loading recent topics
+      const newTopic = allTopics.find(t => t.name === name);
+      if (newTopic) {
+        selectTopic(newTopic.id, newTopic.name);
+        if (addUrlMessage) {
+          addUrlMessage.textContent = `Add URL to the topic [${newTopic.name}]`;
+          addUrlMessage.classList.remove('hidden');
+        }
+        loadLinks();
       }
-      loadLinks();
+    } else {
+      alert('Failed to add topic');
     }
-  } else {
-    alert('Failed to add topic');
-  }
-});
-
-addLinkForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = document.getElementById('title').value.trim();
-  const url = document.getElementById('url').value.trim();
-
-  if (!name || !url) {
-    alert('Name and URL are required');
-    return;
-  }
-
-  const response = await fetch(apiBaseUrl + '/links', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topic_id: currentTopicId, name, url }),
   });
+}
 
-  if (response.ok) {
-    addLinkForm.reset();
-    loadLinks();
-  } else {
-    alert('Failed to add link');
-  }
-});
+if (addLinkForm) {
+  addLinkForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('title').value.trim();
+    const url = document.getElementById('url').value.trim();
+
+    if (!name || !url) {
+      alert('Name and URL are required');
+      return;
+    }
+
+    const response = await fetch(apiBaseUrl + '/links', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic_id: currentTopicId, name, url }),
+    });
+
+    if (response.ok) {
+      addLinkForm.reset();
+      loadLinks();
+    } else {
+      alert('Failed to add link');
+    }
+  });
+}
 
 
-document.getElementById('add-topic-btn').addEventListener('click', () => {
-  const addTopicForm = document.getElementById('add-topic-form');
-  const topicNameInput = document.getElementById('topic-name');
-  addTopicForm.classList.remove('hidden');
-  topicNameInput.focus();
-});
+const addTopicBtn = document.getElementById('add-topic-btn');
+if (addTopicBtn) {
+  addTopicBtn.addEventListener('click', () => {
+    const addTopicForm = document.getElementById('add-topic-form');
+    const topicNameInput = document.getElementById('topic-name');
+    if (addTopicForm) addTopicForm.classList.remove('hidden');
+    if (topicNameInput) topicNameInput.focus();
+  });
+}
 
 // Initial load
 loadRecentTopics();

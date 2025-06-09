@@ -8,7 +8,8 @@
     "metascraper-title": "^5.47.1",
     "node-fetch": "^3.3.2",
     "puppeteer": "^24.10.0",
-    "whatwg-url": "^14.2.0"
+    "whatwg-url": "^14.2.0",
+    "cors": "2.8.5"
   },
   "scripts": {
     "start": "node backend/server.js"
@@ -17,5 +18,8 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "jest-environment-jsdom": "^30.0.0-beta.3"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
